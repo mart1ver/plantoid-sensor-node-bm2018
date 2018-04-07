@@ -16,8 +16,10 @@ Based on wemos D1.
 1x wemos d1,1x cd4061, 1x restor 10k, dht11, various analog sensors,2x sonar module type HC-SR04
 ### Final board
 ![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/shema%20fritzing/plantoid_circuit%20imprim%C3%A9.jpg)
-## Software
-https://github.com/kasperkamperman/OSCDataMonitor
+## Fritzing board
+[here](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/shema%20fritzing/plantoid%20box%20Sketch.fzz)
+### Software
+I use [OSCDataMonitor](https://github.com/kasperkamperman/OSCDataMonitor) to test the board... more soon...
 ### Arduino code
 [here](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino)
 
