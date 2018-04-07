@@ -5,10 +5,10 @@ Noeud de capteurs plantoid, revoie sous forme de messages OSC les valeurs de deu
 Based on wemos D1.
 
 ### Front view
-
+![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/front.jpg)
 
 ### Rear view
-
+![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/back.jpg)
 
 ### Schematics
 
