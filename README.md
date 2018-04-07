@@ -5,6 +5,7 @@ Noeud de capteurs plantoid, revoie sous forme de messages OSC les valeurs de deu
 Based on wemos D1.
 
 ### Front view
+##
 ![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/front.jpg)
 
 ### Rear view
@@ -24,7 +25,7 @@ Based on wemos D1.
 ## Software
 
 ### Arduino code
-[here](https://github.com/mart1ver/dodoc-cheap-controller/blob/master/dodoc-cheap-controller_arduino_code.ino)
+[plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino)
 
 ### Usefull links
 
