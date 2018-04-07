@@ -11,17 +11,11 @@ Based on wemos D1.
 ![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/back.jpg)
 
 ### Schematics
-![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/back.jpg)
+![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/shema%20fritzing/plantoid_sch%C3%A9ma.jpg)
 ## Hardware
 1x wemos d1,1x cd4061, 1x restor 10k, dht11, various analog sensors,2x sonar module type HC-SR04
 ### Final board
 ![plantoid-OSC-sender](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/shema%20fritzing/plantoid_circuit%20imprim%C3%A9.jpg)
-
-
-
-
-
-
 ## Software
 https://github.com/kasperkamperman/OSCDataMonitor
 ### Arduino code
@@ -29,3 +23,4 @@ https://github.com/kasperkamperman/OSCDataMonitor
 
 ### Usefull links
 
+...
