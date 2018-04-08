@@ -32,7 +32,7 @@ CRGB leds[NUM_LEDS];                           // Define the array of leds
 //variables d'identification du neud de capteurs
 char* plantoide = "1";                         //numero de la plantoide
 char* numeroBoitier = "1";                     //numero du boitier           
-char* base = "plantoid/";                      //base de l'adresse OSC
+char* base = "";                      //base de l'adresse OSC
 char oscAddr[80] = "";                         // tableau contenant l'adresse OSC complette
         
 WiFiUDP Udp;  
