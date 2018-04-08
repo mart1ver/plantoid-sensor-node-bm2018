@@ -20,6 +20,8 @@ Based on wemos D1.
 [here](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/shema%20fritzing/plantoid%20box%20Sketch.fzz)
 ### Software
 I use [OSCDataMonitor](https://github.com/kasperkamperman/OSCDataMonitor) to test the board... more soon...
+## Protocole OSC
+
 ### Arduino code
 [here](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino)
 
