@@ -41,7 +41,7 @@ plantoid/numero_sculpture(int)/numero_boitier(int)/hum/valeur(float,humidité au
 
 ```
 
-numero_sculpture et numero_boitier sonts définis dans le  [code de la carte](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino), une sculpture peut posseder plusieurs boitiers, les signaux son envoyés au changement d'état des capteurs.
+```numero_sculpture``` et ```numero_boitier``` sonts définis dans le  [code de la carte](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino), une sculpture peut posseder plusieurs boitiers, les signaux son envoyés au changement d'état des capteurs.
 
 ### Arduino code
 [here](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino)
