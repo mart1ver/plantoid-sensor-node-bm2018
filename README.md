@@ -21,6 +21,24 @@ Based on wemos D1.
 ### Software
 I use [OSCDataMonitor](https://github.com/kasperkamperman/OSCDataMonitor) to test the board... more soon...
 ## Protocole OSC
+chaque boitiers renvoie une douzaine de valeurs à ces adresses:
+
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog1/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog2/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog3/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog4/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog5/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog6/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog7/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog8/valeur(int,min 0 ,max 1024)
+
+plantoid/numero_sculpture(int)/numero_boitier(int)/sonar1/valeur(float,distance en centimetres)
+plantoid/numero_sculpture(int)/numero_boitier(int)/sonar2/valeur(float,distance en centimetres)
+
+plantoid/numero_sculpture(int)/numero_boitier(int)/temp/valeur(float,temperature au niveau du boitier)
+plantoid/numero_sculpture(int)/numero_boitier(int)/hum/valeur(float,humidité au niveau du boitier)
+
+numero_sculpture et numero_boitier sonts définis dans le  [code de la carte](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino), une sculpture peut posseder plusieurs boitiers, les signaux son envoyés au changement d'état des capteurs.
 
 ### Arduino code
 [here](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/code%20arduino/plantoid-osc-sender.ino)
