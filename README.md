@@ -48,4 +48,7 @@ plantoid/numero_sculpture(int)/numero_boitier(int)/hum/valeur(float,humidité au
 
 ### Usefull links
 
+https://ledaniel.fr/?page_id=188
+
+https://projects.stwst.at/stwst48/plantoid-by-primavera-de-filippi-david-bovill-vincent-roudaut-and-sara-renaud/
 ...
