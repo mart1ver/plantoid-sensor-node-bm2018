@@ -4,27 +4,27 @@ sketch boitiers capteurs plantoid, 8 analog/digital in , 2 utrasonic sensors , 1
    comportement de la led de diag : blue = boot , red = wifi connection error , green =connecteé au routeur
 */
 //librairies
-#include <ESP8266WiFi.h>                       //esp WiFi
-#include <DNSServer.h>                         //serveur DNS
-#include <ESP8266WebServer.h>                  //serveur WEB
-#include <ESP8266mDNS.h>                       //DNS
-#include <WiFiUdp.h>                           //serveur UDP
-#include <WiFiManager.h>                       //WiFiManager
-#include <OSCMessage.h>                        //gestion des signaux OSC
-#include "NewPing.h"                           //Capteurs à ultrasons
-#include "DHTesp.h"                            //Capteur dht11
-#include "FastLED.h"                           //gestion de la ws2812b
+#include <ESP8266WiFi.h>                                                                  //esp WiFi
+#include <DNSServer.h>                                                                    //serveur DNS
+#include <ESP8266WebServer.h>                                                             //serveur WEB
+#include <ESP8266mDNS.h>                                                                  //mDNS
+#include <WiFiUdp.h>                                                                      //serveur UDP
+#include <WiFiManager.h>                                                                  //WiFiManager
+#include <OSCMessage.h>                                                                   //gestion des signaux OSC
+#include "NewPing.h"                                                                      //Capteurs à ultrasons
+#include "DHTesp.h"                                                                       //Capteur dht11
+#include "FastLED.h"                                                                      //gestion de la ws2812b
 #include <EEPROM.h>
 //defines
-#define NUM_LEDS       1                       // nombre de leds de diagnostique
-#define LED_DATA_PIN  15                       // data pin des leds de diag.                                            wemos D8
-#define TRIGGER_PIN_1  4                       // Arduino pin tied to trigger pin on the ultrasonic sensor1.            wemos D2
-#define ECHO_PIN_1     5                       // Arduino pin tied to echo pin on the ultrasonic sensor1.               wemos D1
-#define TRIGGER_PIN_2  2                       // Arduino pin tied to trigger pin on the ultrasonic sensor2.            wemos D4
-#define ECHO_PIN_2     0                       // Arduino pin tied to echo pin on the ultrasonic sensor2.               wemos D3
-#define pin4051_1     14                       // Select bus du 4051                                                    wemos D5
-#define pin4051_2     12                       // Select bus du 4051                                                    wemos D6
-#define pin4051_3     13                       // Select bus du 4051                                                    wemos D7
+#define NUM_LEDS       1                                                                  // nombre de leds de diagnostique
+#define LED_DATA_PIN  15                                                                  // data pin des leds de diag.                                            wemos D8
+#define TRIGGER_PIN_1  4                                                                  // Arduino pin tied to trigger pin on the ultrasonic sensor1.            wemos D2
+#define ECHO_PIN_1     5                                                                  // Arduino pin tied to echo pin on the ultrasonic sensor1.               wemos D1
+#define TRIGGER_PIN_2  2                                                                  // Arduino pin tied to trigger pin on the ultrasonic sensor2.            wemos D4
+#define ECHO_PIN_2     0                                                                  // Arduino pin tied to echo pin on the ultrasonic sensor2.               wemos D3
+#define pin4051_1     14                                                                  // Select bus du 4051                                                    wemos D5
+#define pin4051_2     12                                                                  // Select bus du 4051                                                    wemos D6
+#define pin4051_3     13                                                                  // Select bus du 4051                                                    wemos D7
 #define dhtPin        16                                                                  // Connect DHT sensor to                                                 wemos D0 
 #define MAX_DISTANCE  200                                                                 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define aref_voltage  5                                                                   // tension analog_ref = 5 volts
@@ -60,46 +60,22 @@ float a7State = 0;
 float a7PreviousState = 0;
 float a8State = 0;
 float a8PreviousState = 0;
-float distance1, distance2;
+
+
+float duration1, duration2, distance1, distance2;
 float previousDistance1, previousDistance2;
-float humidity = 0; 
-float temperature = 0;
-float previousTemperature = 0; 
-float previousHumidity= 0;
+int sonar_iterations = 5;
+float humidity ; 
+float temperature ;
+float previousTemperature ; 
+float previousHumidity;
+
 //variables de calibration des capteurs analog/digital
 int aMinimumTrueValue = 17;                                                                 //filtre les valeurs de moins de x, pour les lectures analogiques
 int aReadDelay = 5;                                                                         //delais entre commutation du4051 et la lecture analogique
 int aMinNoise = 60;                                                                         //bruit tolléré en mode analogique
 
 
-//voids
-void handleRoot() {
-  sprintf(addr, "%s%s/%s/", base, plantoide, numeroBoitier);
-//  digitalWrite(led, 1);
-  String page = "";
-   page +=  "<html><bosdy><H1>configuration du noeud plantoide : ";
-   page += addr;
-   page +=" </H1></body></html>";
-  server.send(200,"text/plain", page);
- // digitalWrite(led, 0);
-}
-
-void handleNotFound(){
-  //digitalWrite(led, 1);
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET)?"GET":"POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i=0; i<server.args(); i++){
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
-  //digitalWrite(led, 0);
-}
 
 
 void setup() {
@@ -107,7 +83,11 @@ void setup() {
    FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);                     
    leds[0] = CRGB::Black;                                                                     
    FastLED.show();
-                                                                                            //initialisation du port d'adresse du 4051
+   temperature = dht.getTemperature();                                                      //prise de temperature
+   delay(dht.getMinimumSamplingPeriod());
+   humidity = dht.getHumidity();                                                            //prise d'humidité
+   delay(dht.getMinimumSamplingPeriod());          
+                                                                                            //initialisation du port d'adressage du 4051
   pinMode(pin4051_1, OUTPUT); 
   pinMode(pin4051_2, OUTPUT); 
   pinMode(pin4051_3, OUTPUT); 
@@ -131,42 +111,58 @@ void setup() {
   leds[0] = CRGB::Blue;                                                                    //led de diag en bleu = boot 
   FastLED.show();
   WiFiManager wifiManager;
-//wifiManager.setSTAStaticIPConfig(IPAddress(10,0,int(plantoide[]),int(numeroBoitier[])), IPAddress(10,0,1,1), IPAddress(255,255,0,0));
-//wifiManager.setSTAStaticIPConfig(IPAddress(192,168,P,1), IPAddress(192,168,1,255), IPAddress(255,255,0,0));                                                                   
   wifiManager.autoConnect("unconfigured_node");
-
-Serial.println("Server started"); 
-Serial.println(P);
+  Serial.println("Server started"); 
+  Serial.println(P);
   Serial.println("connecté au routeur avec succes");
   Serial.println("UDP OK");
   Udp.begin(localPort);
   Serial.print("Local port: ");
-  Serial.println(Udp.localPort());                                                            //led diag. verte = bien booté 
+  Serial.println(Udp.localPort());                                                             
   if (MDNS.begin("esp8266")) {
-    Serial.println("MDNS responder OK");
+  Serial.println("MDNS responder OK");
   }
   
   server.on("/", handleRoot);
 
-  server.on("/inline", [](){
-    server.send(200, "text/plain", "this works as well");
+  server.on("/restart", [](){
+  server.send(200, "text/plain", "OK! Lets restart this plantoid node. Wait a second.");
+  delay(600);
+  ESP.restart();
   });
 
-  server.onNotFound(handleNotFound);
+  
 
+  server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("serveur HTTP OK");
-  leds[0] = CRGB::Green;
+  leds[0] = CRGB::Green;                                                                  //led diag. verte = bien booté
   FastLED.show();
-  delay(20);
+  delay(800);
+  leds[0] = CRGB::Black;                                                                  //led diag. verte = bien booté
+  FastLED.show();
 }
 
 void loop() {
-    leds[0] = CRGB::Red;
-  FastLED.show();
+
 server.handleClient();
+                                                                                         // cycle de temperature
+temperature = dht.getTemperature();
+if (temperature != previousTemperature){
+   sprintf(oscAddr, "%s%s/%s/temp/", base, plantoide, numeroBoitier);
+   OSCMessage msg(oscAddr);
+    msg.add(temperature);
+    Udp.beginPacket(outIp, outPort);
+    msg.send(Udp);
+    Udp.endPacket();
+    msg.empty();
+    previousTemperature = temperature;
+} 
+
+
                                                                                                //cycle du sonar 1
-distance1 = sonar_1.ping_cm();
+duration1 = sonar_1.ping_median(sonar_iterations);
+distance1 = (duration1 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance1 != previousDistance1){
    sprintf(oscAddr, "%s%s/%s/sonar1/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
@@ -178,7 +174,8 @@ if (distance1 != previousDistance1){
     previousDistance1 = distance1;
 } 
                                                                                                  //cycle du sonar 2
-distance2 = sonar_2.ping_cm();
+duration2 = sonar_2.ping_median(sonar_iterations);
+distance2 = (duration2 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance2 != previousDistance2){
    sprintf(oscAddr, "%s%s/%s/sonar2/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
@@ -386,20 +383,37 @@ if (a8State != a8PreviousState){
 }  
 }
 
-                                                                                                                    // cycle de temperature
-temperature = dht.getTemperature();
-if (temperature != previousTemperature){
-   sprintf(oscAddr, "%s%s/%s/temp/", base, plantoide, numeroBoitier);
-   OSCMessage msg(oscAddr);
-    msg.add(temperature);
-    Udp.beginPacket(outIp, outPort);
-    msg.send(Udp);
-    Udp.endPacket();
-    msg.empty();
-    previousTemperature = temperature;
-} 
-  leds[0] = CRGB::Black;
-  FastLED.show();
+
 }
 
+//voids
+void handleRoot() {
+  sprintf(addr, "%s%s/%s/", base, plantoide, numeroBoitier);
+//  digitalWrite(led, 1);
+  String page = "";
+   page +=  "<html><body><H1>configuration du noeud plantoide : ";
+   page += addr;
+   page +=" </H1></body></html>";
+  server.send(200,"text/html", page);
+ 
+}
+
+
+void handleNotFound(){
+  //digitalWrite(led, 1);
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET)?"GET":"POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i=0; i<server.args(); i++){
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+  server.send(404, "text/plain", message);
+ }
+
+                                                                                                                 
 
