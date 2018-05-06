@@ -4,11 +4,11 @@ Noeud de capteurs plantoid, revoie sous forme de messages OSC les valeurs de deu
 
 Based on wemos D1.
 
-### Prototype front view
+### Prototype view
 ##
-![plantoid-sensor-node](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/front.jpg)
-### Prototype rear view
-![plantoid-sensor-node](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/images/back.jpg)
+![plantoid-sensor-node](https://github.com/mart1ver/plantoid-sensor-node/blob/master/images/final2.jpg)
+### Prototype view
+![plantoid-sensor-node](https://github.com/mart1ver/plantoid-sensor-node/blob/master/images/final.jpg)
 
 ### Schematics
 ![plantoid-sensor-node](https://github.com/mart1ver/plantoid-OSC-sender/blob/master/shema%20fritzing/plantoid_sch%C3%A9ma.jpg)
