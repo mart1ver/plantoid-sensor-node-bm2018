@@ -33,13 +33,13 @@ NewPing sonar_1(TRIGGER_PIN_1, ECHO_PIN_1, MAX_DISTANCE);                       
 NewPing sonar_2(TRIGGER_PIN_2, ECHO_PIN_2, MAX_DISTANCE);                                 // NewPing setup of pins and maximum distance.
 CRGB leds[NUM_LEDS];                                                                      // Define the array of leds
 //variables d'identification du neud de capteurs
-char* plantoide = "2";                                                                    //numero de la plantoide
-char* numeroBoitier = "1";                                                                //numero du boitier           
+char* plantoide = "1";                                                                    //numero de la plantoide
+char* numeroBoitier = "2";                                                                //numero du boitier           
 char* base = "plantoid/";                                                                 //base de l'adresse OSC
 char oscAddr[80] = "";                                                                    // tableau contenant l'adresse OSC complette pour les adresse osc
 char addr[80] = "";                                                                       // tableau contenant l'adresse OSC pour le serveur web        
 WiFiUDP Udp;  
-const IPAddress outIp(192,168,1,17);                                                      // remote IP of the receptor
+const IPAddress outIp(192,168,1,8);                                                       // remote IP of the receptor
 const unsigned int outPort = 8000;                                                        // remote port to send OSC
 const unsigned int localPort = 8888;                                                      // local port to listen for OSC packets (actually not used for sending)
 DHTesp dht;
