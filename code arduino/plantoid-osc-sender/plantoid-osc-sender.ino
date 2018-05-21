@@ -33,13 +33,13 @@ NewPing sonar_1(TRIGGER_PIN_1, ECHO_PIN_1, MAX_DISTANCE);                       
 NewPing sonar_2(TRIGGER_PIN_2, ECHO_PIN_2, MAX_DISTANCE);                                 // NewPing setup of pins and maximum distance.
 CRGB leds[NUM_LEDS];                                                                      // Define the array of leds
 //variables d'identification du neud de capteurs
-char* plantoide = "1";                                                                    //numero de la plantoide
-char* numeroBoitier = "2";                                                                //numero du boitier           
+//char* plantoide = "9";                                                                    //numero de la plantoide
+//char* numeroBoitier = "9";                                                                //numero du boitier           
 char* base = "plantoid/";                                                                 //base de l'adresse OSC
 char oscAddr[80] = "";                                                                    // tableau contenant l'adresse OSC complette pour les adresse osc
 char addr[80] = "";                                                                       // tableau contenant l'adresse OSC pour le serveur web        
 WiFiUDP Udp;  
-const IPAddress outIp(192,168,1,8);                                                       // remote IP of the receptor
+//const IPAddress outIp(192,168,1,8);                                                       // remote IP of the receptor
 const unsigned int outPort = 8000;                                                        // remote port to send OSC
 const unsigned int localPort = 8888;                                                      // local port to listen for OSC packets (actually not used for sending)
 DHTesp dht;
@@ -75,10 +75,27 @@ int aMinimumTrueValue = 17;                                                     
 int aReadDelay = 5;                                                                         //delais entre commutation du4051 et la lecture analogique
 int aMinNoise = 60;                                                                         //bruit tolléré en mode analogique
 
+int initiation = EEPROM.read(9);
 
+int IP1 = EEPROM.read(10);
+int IP2 = EEPROM.read(11);
+int IP3 = EEPROM.read(12);
+int IP4 = EEPROM.read(13);
+IPAddress outIp;
+
+int plantoide = EEPROM.read(14);                                                                    //numero de la plantoide
+int numeroBoitier = EEPROM.read(15);
 
 
 void setup() {
+             
+                                                                                            
+   if(IP1) {  outIp = IPAddress(IP1,IP2,IP3,IP4);
+   } else {   outIp = IPAddress(192,168,1,8);
+   }   
+
+   plantoide = plantoide ? plantoide : 9;
+   numeroBoitier = numeroBoitier ? numeroBoitier : 9;                                                                                  
                                                                                             // initialisation de la led de diag.
    FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);                     
    leds[0] = CRGB::Black;                                                                     
@@ -107,13 +124,24 @@ void setup() {
   Serial.println();
   Serial.println();
   dht.setup(dhtPin);        
-  int P = plantoide[0];
+  //int P = plantoide[0];
   leds[0] = CRGB::Blue;                                                                    //led de diag en bleu = boot 
   FastLED.show();
+  
   WiFiManager wifiManager;
-  wifiManager.autoConnect("unconfigured_node");
+  //wifiManager.resetSettings();
+  
+  byte mac[6]; WiFi.macAddress(mac);
+ if(initiation) {
+      sprintf(addr, "%s%d/%d/", base, plantoide, numeroBoitier);
+  } else { sprintf(addr, "%s-%d:%d:%d:%d", base, mac[5],mac[4],mac[3],mac[2]);
+  }
+  
+  wifiManager.autoConnect(addr);
+      
+  
   Serial.println("Server started"); 
-  Serial.println(P);
+//  Serial.println(P);
   Serial.println("connecté au routeur avec succes");
   Serial.println("UDP OK");
   Udp.begin(localPort);
@@ -134,6 +162,7 @@ void setup() {
   
 
   server.onNotFound(handleNotFound);
+  server.on("/submit", handleSubmit);
   server.begin();
   Serial.println("serveur HTTP OK");
   leds[0] = CRGB::Green;                                                                  //led diag. verte = bien booté
@@ -149,7 +178,7 @@ server.handleClient();
                                                                                          // cycle de temperature
 temperature = dht.getTemperature();
 if (temperature != previousTemperature){
-   sprintf(oscAddr, "%s%s/%s/temp/", base, plantoide, numeroBoitier);
+   sprintf(oscAddr, "%s%d/%d/temp/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(temperature);
     Udp.beginPacket(outIp, outPort);
@@ -164,7 +193,7 @@ if (temperature != previousTemperature){
 duration1 = sonar_1.ping_median(sonar_iterations);
 distance1 = (duration1 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance1 != previousDistance1){
-   sprintf(oscAddr, "%s%s/%s/sonar1/", base, plantoide, numeroBoitier);
+   sprintf(oscAddr, "%s%d/%d/sonar1/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(distance1);
     Udp.beginPacket(outIp, outPort);
@@ -177,7 +206,7 @@ if (distance1 != previousDistance1){
 duration2 = sonar_2.ping_median(sonar_iterations);
 distance2 = (duration2 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance2 != previousDistance2){
-   sprintf(oscAddr, "%s%s/%s/sonar2/", base, plantoide, numeroBoitier);
+   sprintf(oscAddr, "%s%d/%d/sonar2/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(distance2);
     Udp.beginPacket(outIp, outPort);
@@ -189,7 +218,7 @@ if (distance2 != previousDistance2){
                                                                                                   // cycle d'humidité
 humidity = dht.getHumidity();
 if (humidity != previousHumidity){
- sprintf(oscAddr, "%s%s/%s/hum/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/hum/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(humidity);
     Udp.beginPacket(outIp, outPort);
@@ -212,7 +241,7 @@ if(a1State < aMinimumTrueValue){
 if ((a1State - a1PreviousState) > aMinNoise || ((a1PreviousState - a1State) > aMinNoise))
 {
 if (a1State != a1PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog1/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog1/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a1State);
     Udp.beginPacket(outIp, outPort);
@@ -239,7 +268,7 @@ if(a2State < aMinimumTrueValue){
 if ((a2State - a2PreviousState) > aMinNoise || ((a2PreviousState - a2State) > aMinNoise))
 {
 if (a2State != a2PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog2/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog2/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a2State);
     Udp.beginPacket(outIp, outPort);
@@ -261,7 +290,7 @@ if(a3State < aMinimumTrueValue){
 if ((a3State - a3PreviousState) > aMinNoise || ((a3PreviousState - a3State) > aMinNoise))
 {
 if (a3State != a3PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog3/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog3/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a3State);
     Udp.beginPacket(outIp, outPort);
@@ -283,7 +312,7 @@ if(a4State < aMinimumTrueValue){
 if ((a4State - a4PreviousState) > aMinNoise || ((a4PreviousState - a4State) > aMinNoise))
 {
 if (a4State != a4PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog4/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog4/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a4State);
     Udp.beginPacket(outIp, outPort);
@@ -305,7 +334,7 @@ if(a5State < aMinimumTrueValue){
 if ((a5State - a5PreviousState) > aMinNoise || ((a5PreviousState - a5State) > aMinNoise))
 {
 if (a5State != a5PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog5/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog5/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a5State);
     Udp.beginPacket(outIp, outPort);
@@ -327,7 +356,7 @@ if(a6State < aMinimumTrueValue){
 if ((a6State - a6PreviousState) > aMinNoise || ((a6PreviousState - a6State) > aMinNoise))
 {
 if (a6State != a6PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog6/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog6/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a6State);
     Udp.beginPacket(outIp, outPort);
@@ -349,7 +378,7 @@ if(a7State < aMinimumTrueValue){
 if ((a7State - a7PreviousState) > aMinNoise || ((a7PreviousState - a7State) > aMinNoise))
 {
 if (a7State != a7PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog7/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog7/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a8State);
     Udp.beginPacket(outIp, outPort);
@@ -372,7 +401,7 @@ if(a8State < aMinimumTrueValue){
 if ((a8State - a8PreviousState) > aMinNoise || ((a8PreviousState - a8State) > aMinNoise))
 {
 if (a8State != a8PreviousState){
- sprintf(oscAddr, "%s%s/%s/analog8/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog8/", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(a6State);
     Udp.beginPacket(outIp, outPort);
@@ -388,16 +417,50 @@ if (a8State != a8PreviousState){
 
 //voids
 void handleRoot() {
-  sprintf(addr, "%s%s/%s/", base, plantoide, numeroBoitier);
+//  sprintf(addr, "%s%s/%s/", base, plantoide, numeroBoitier);
 //  digitalWrite(led, 1);
   String page = "";
-   page +=  "<html><body><H1>configuration du noeud plantoide : ";
-   page += addr;
-   page +=" </H1></body></html>";
+   page +=  "<html><body><H1>configuration du noeud plantoide : </h1> ";
+
+   page +=" <form action='/submit' method='get'>";
+   page +=" IP address for sending data: ";
+   String pp = (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1 + (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4 + (String)"'></input>";
+   page += pp;
+   page += "Plantoide #" + (String)" <input type='number' min=0 max=255 name='NPlantoid' value='" + plantoide + (String)"'></input>/<input type='number' min=0 max=255 name='NBoitier' value='" + numeroBoitier + (String)"'></input>";
+
+   page +=" <input type='submit' value='save values'></form>";
+   page +=" </body></html>";
   server.send(200,"text/html", page);
  
 }
 
+void handleSubmit(){
+
+  Serial.println("reading arguments: " + (String)server.method() + "   ..." + server.arg(0) + server.arg(1) + server.arg(2) + server.arg(3));
+    IP1 = atoi(server.arg(0).c_str());  EEPROM.write(10, byte(IP1));
+    IP2 = atoi(server.arg(1).c_str());  EEPROM.write(11, byte(IP2));
+    IP3 = atoi(server.arg(2).c_str());  EEPROM.write(12, byte(IP2));
+    IP4 = atoi(server.arg(3).c_str());  EEPROM.write(13, byte(IP3));
+
+    plantoide = atoi(server.arg(4).c_str()); EEPROM.write(14, byte(plantoide));
+    numeroBoitier = atoi(server.arg(5).c_str()); EEPROM.write(15, byte(numeroBoitier));
+
+   EEPROM.write(9, byte(1));
+    
+  EEPROM.commit();
+
+    outIp = IPAddress(IP1, IP2, IP3, IP4);
+
+    String page = "";
+    page +=  "<html><body><H1>New IP address : ";
+    page += outIp;
+    page +=" </h1> Name of this Boitier = ";
+    page += plantoide;
+    page += "/";
+    page += numeroBoitier;
+    page +="</body></html>";
+    server.send(200, "text/html", page);
+}
 
 void handleNotFound(){
   //digitalWrite(led, 1);
