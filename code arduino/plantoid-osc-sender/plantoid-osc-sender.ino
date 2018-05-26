@@ -35,7 +35,6 @@ char* base = "plantoid/";                                                       
 char oscAddr[80] = "";                                                                    // tableau contenant l'adresse OSC complette pour les adresse osc
 char addr[80] = "";                                                                       // tableau contenant l'adresse OSC pour le serveur web        
 WiFiUDP Udp;  
-//const IPAddress outIp(192,168,1,8);                                                     // remote IP of the receptor
 const unsigned int outPort = 8000;                                                        // remote port to send OSC
 const unsigned int localPort = 8888;                                                      // local port to listen for OSC packets (actually not used for sending)
 DHTesp dht;
