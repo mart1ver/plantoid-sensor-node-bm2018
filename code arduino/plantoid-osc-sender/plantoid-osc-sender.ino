@@ -152,7 +152,7 @@ void loop() {
 server.handleClient();                                                                               
 temperature = dht.getTemperature();                                                        // cycle de temperature
 if (temperature != previousTemperature){
-   sprintf(oscAddr, "%s%d/%d/temp/", base, plantoide, numeroBoitier);
+   sprintf(oscAddr, "%s%d/%d/temp ", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
    msg.add(temperature);
    Udp.beginPacket(outIp, outPort);
@@ -163,7 +163,7 @@ if (temperature != previousTemperature){
 duration1 = sonar_1.ping_median(sonar_iterations);                                        //cycle du sonar 1
 distance1 = (duration1 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance1 != previousDistance1){
-   sprintf(oscAddr, "%s%d/%d/sonar1/", base, plantoide, numeroBoitier);
+   sprintf(oscAddr, "%s%d/%d/sonar 1 ", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
    msg.add(distance1);
    Udp.beginPacket(outIp, outPort);
@@ -174,7 +174,7 @@ if (distance1 != previousDistance1){
 duration2 = sonar_2.ping_median(sonar_iterations);                                        //cycle du sonar 2
 distance2 = (duration2 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance2 != previousDistance2){
-   sprintf(oscAddr, "%s%d/%d/sonar2/", base, plantoide, numeroBoitier);
+   sprintf(oscAddr, "%s%d/%d/sonar 2 ", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
    msg.add(distance2);
    Udp.beginPacket(outIp, outPort);
@@ -184,7 +184,7 @@ if (distance2 != previousDistance2){
    previousDistance2 = distance2;  }                                                                                                  
 humidity = dht.getHumidity();                                                              // cycle d'humidité
 if (humidity != previousHumidity){
- sprintf(oscAddr, "%s%d/%d/hum/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/hum ", base, plantoide, numeroBoitier);
    OSCMessage msg(oscAddr);
     msg.add(humidity);
     Udp.beginPacket(outIp, outPort);
@@ -204,7 +204,7 @@ if ((a1State - a1PreviousState) > aMinNoise || ((a1PreviousState - a1State) > aM
 {
 if (a1State != a1PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog1/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 1 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a1State);
  Udp.beginPacket(outIp, outPort);
@@ -226,7 +226,7 @@ if ((a2State - a2PreviousState) > aMinNoise || ((a2PreviousState - a2State) > aM
 {
 if (a2State != a2PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog2/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 2 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a2State);
  Udp.beginPacket(outIp, outPort);
@@ -248,7 +248,7 @@ if ((a3State - a3PreviousState) > aMinNoise || ((a3PreviousState - a3State) > aM
 {
 if (a3State != a3PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog3/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 3 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a3State);
  Udp.beginPacket(outIp, outPort);
@@ -270,7 +270,7 @@ if ((a4State - a4PreviousState) > aMinNoise || ((a4PreviousState - a4State) > aM
 {
 if (a4State != a4PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog4/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 4 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a4State);
  Udp.beginPacket(outIp, outPort);
@@ -292,7 +292,7 @@ if ((a5State - a5PreviousState) > aMinNoise || ((a5PreviousState - a5State) > aM
 {
 if (a5State != a5PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog5/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 5 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a5State);
  Udp.beginPacket(outIp, outPort);
@@ -314,7 +314,7 @@ if ((a6State - a6PreviousState) > aMinNoise || ((a6PreviousState - a6State) > aM
 {
 if (a6State != a6PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog6/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 6 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a6State);
  Udp.beginPacket(outIp, outPort);
@@ -336,7 +336,7 @@ if ((a7State - a7PreviousState) > aMinNoise || ((a7PreviousState - a7State) > aM
 {
 if (a7State != a7PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog7/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 7 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a8State);
  Udp.beginPacket(outIp, outPort);
@@ -358,7 +358,7 @@ if ((a8State - a8PreviousState) > aMinNoise || ((a8PreviousState - a8State) > aM
 {
 if (a8State != a8PreviousState)
 {
- sprintf(oscAddr, "%s%d/%d/analog8/", base, plantoide, numeroBoitier);
+ sprintf(oscAddr, "%s%d/%d/analog 8 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
  msg.add(a6State);
  Udp.beginPacket(outIp, outPort);
@@ -371,9 +371,9 @@ if (a8State != a8PreviousState)
 }
 void handleRoot() {                                                                        //formulaire html de configuration du sensor node
   String page = "";
-   page +=  "<html><body><H1>configuration du noeud plantoide : </h1> ";
+   page +=  "<html><body><H1>Configuration du noeud de capteurs plantoide : </h1> ";
    page +=" <form action='/submit' method='get'>";
-   page +=" IP address for sending data: ";
+   page +=" Adresse IP. du récépteur: ";
    String pp = (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1 + (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4 + (String)"'></input>";
    page += pp;
    page += "<br> Plantoide #" + (String)" <input type='number' min=0 max=255 name='NPlantoid' value='" + plantoide + (String)"'></input>/<input type='number' min=0 max=255 name='NBoitier' value='" + numeroBoitier + (String)"'></input>";
@@ -393,9 +393,9 @@ void handleSubmit(){                                                            
   EEPROM.commit();
   outIp = IPAddress(IP1, IP2, IP3, IP4);
   String page = "";
-  page +=  "<html><body><H1>New IP address : ";
+  page +=  "<html><body><H1>Nouveau récépteur : ";
   page += outIp;
-  page +=" </h1> Name of this Boitier = ";
+  page +=" </h1> Nom du Boitier = ";
   page += plantoide;
   page += "/";
   page += numeroBoitier;
