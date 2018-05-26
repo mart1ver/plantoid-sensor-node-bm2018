@@ -349,7 +349,7 @@ digitalWrite(pin4051_1, HIGH);                                                  
 digitalWrite(pin4051_2, LOW);      
 digitalWrite(pin4051_3, HIGH);   
 delay(aReadDelay); 
-a6State = analogRead(0);   
+a8State = analogRead(0);   
 if(a8State < aMinimumTrueValue){
   a8State = 0;
                                } 
