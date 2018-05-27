@@ -1,7 +1,6 @@
-
 /*
 sketch boitiers capteurs plantoid, 8 analog/digital in , 2 utrasonic sensors , 1 dht 11 , 1 ws2812b dediagnostic
-   comportement de la led de diag : blue = boot , red = wifi connection error , green = connecteé au routeur, black = fonctionnement normal
+   comportement de la led de diag : blue = boot , red = s'allume en http via /lit s'etteind via /unlit , green = connecteé au routeur (dure une seconde), black = fonctionnement normal
 */
 //librairies
 #include <ESP8266WiFi.h>                                                                  // librairie esp WiFi
@@ -16,15 +15,15 @@ sketch boitiers capteurs plantoid, 8 analog/digital in , 2 utrasonic sensors , 1
 #include "FastLED.h"                                                                      // librairie de gestion des ws2812b
 #include <EEPROM.h>                                                                       // librairie de gestion de l'eeprom
 #define NUM_LEDS       1                                                                  // nombre de leds de diagnostique
-#define LED_DATA_PIN  15                                                                  // data pin des leds de diag.                                            wemos D8
-#define TRIGGER_PIN_1  4                                                                  // Arduino pin tied to trigger pin on the ultrasonic sensor1.            wemos D2
+#define dhtPin        16                                                                  // Connect DHT sensor to                                                 wemos D0 
 #define ECHO_PIN_1     5                                                                  // Arduino pin tied to echo pin on the ultrasonic sensor1.               wemos D1
-#define TRIGGER_PIN_2  2                                                                  // Arduino pin tied to trigger pin on the ultrasonic sensor2.            wemos D4
+#define TRIGGER_PIN_1  4                                                                  // Arduino pin tied to trigger pin on the ultrasonic sensor1.            wemos D2
 #define ECHO_PIN_2     0                                                                  // Arduino pin tied to echo pin on the ultrasonic sensor2.               wemos D3
+#define TRIGGER_PIN_2  2                                                                  // Arduino pin tied to trigger pin on the ultrasonic sensor2.            wemos D4
 #define pin4051_1     14                                                                  // Select bus du 4051                                                    wemos D5
 #define pin4051_2     12                                                                  // Select bus du 4051                                                    wemos D6
 #define pin4051_3     13                                                                  // Select bus du 4051                                                    wemos D7
-#define dhtPin        16                                                                  // Connect DHT sensor to                                                 wemos D0 
+#define LED_DATA_PIN  15                                                                  // data pin des leds de diag.                                            wemos D8
 #define MAX_DISTANCE  200                                                                 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define aref_voltage  5                                                                   // tension analog_ref = 5 volts
 ESP8266WebServer server(80);                                                              // serveur web sur port 80
@@ -35,6 +34,7 @@ char* base = "plantoid/";                                                       
 char oscAddr[80] = "";                                                                    // tableau contenant l'adresse OSC complette pour les adresse osc
 char addr[80] = "";                                                                       // tableau contenant l'adresse OSC pour le serveur web        
 WiFiUDP Udp;  
+//const IPAddress outIp(192,168,1,8);                                                     // remote IP of the receptor
 const unsigned int outPort = 8000;                                                        // remote port to send OSC
 const unsigned int localPort = 8888;                                                      // local port to listen for OSC packets (actually not used for sending)
 DHTesp dht;
@@ -61,35 +61,48 @@ float humidity ;
 float temperature ;
 float previousTemperature ; 
 float previousHumidity;
-int aMinimumTrueValue = 17;                                                                 //filtre les valeurs de moins de x, pour les lectures analogiques
-int aReadDelay = 5;                                                                         //delais entre commutation du4051 et la lecture analogique
-int aMinNoise = 60;                                                                         //bruit tolléré en mode analogique
-int initiation = EEPROM.read(9);
-int IP1 = EEPROM.read(10)? EEPROM.read(10): 192;
+int aReadDelay = 5;                                                                          // delais entre commutation du4051 et la lecture analogique
+int a1MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 1
+int a1MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 1
+int a2MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 2
+int a2MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 2
+int a3MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 3
+int a3MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 3
+int a4MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 4
+int a4MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 4
+int a5MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 5
+int a5MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 5
+int a6MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 6
+int a6MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 6
+int a7MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 7
+int a7MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 7
+int a8MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 8
+int a8MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 8
+int initiation = EEPROM.read(9);                                                             // byte 9 de l'eeprom , censcé etre à 1 si le boitier à déja été configuré via l'interface html 
+int IP1 = EEPROM.read(10)? EEPROM.read(10): 192;                                             // lecture de l'ip dans l'eeprom , valeurs par défaut = 192.168.1.8,  bytes 10, 11, 12, 13 de l'eeprom
 int IP2 = EEPROM.read(11)? EEPROM.read(11): 168;
 int IP3 = EEPROM.read(12)? EEPROM.read(12): 1;
 int IP4 = EEPROM.read(13)? EEPROM.read(13): 8;
 IPAddress outIp;
-int plantoide = EEPROM.read(14);                                                             //numero de la plantoide    byte 14 de l'eeprom
-int numeroBoitier = EEPROM.read(15);                                                         //numero du boitier         byte 15 de l'eeprom
+int plantoide = EEPROM.read(14);                                                             // numero de la plantoide    byte 14 de l'eeprom
+int numeroBoitier = EEPROM.read(15);                                                         // numero du boitier         byte 15 de l'eeprom
 void setup() {                                                                                         
    if(IP1) {  outIp = IPAddress(IP1,IP2,IP3,IP4);
    } else {   outIp = IPAddress(192,168,1,8);
    }   
-   plantoide = plantoide ? plantoide : 9;
-   numeroBoitier = numeroBoitier ? numeroBoitier : 9;                                                                                                                                                                      
+   plantoide = plantoide ? plantoide : 9;                                                    // si pas de numero de plantoide valeur par defaut = 9
+   numeroBoitier = numeroBoitier ? numeroBoitier : 9;                                        // si pas de numero de plantoide valeur par defaut = 9                                                                                                                              
    FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);                                  // initialisation de la led de diag.                
    leds[0] = CRGB::Black;                                                                     
    FastLED.show();
-   temperature = dht.getTemperature();                                                       //prise de temperature
-   delay(dht.getMinimumSamplingPeriod());
-   humidity = dht.getHumidity();                                                             //prise d'humidité
-   delay(dht.getMinimumSamplingPeriod());                                                                                       
-   pinMode(pin4051_1, OUTPUT);                                                               //initialisation du port d'adressage du 4051
+   temperature = dht.getTemperature();                                                       // prise de temperature
+   delay(dht.getMinimumSamplingPeriod());                                                    // delais mini entre deux sollicitations du dht11
+   humidity = dht.getHumidity();                                                             // prise d'humidité                      
+   pinMode(pin4051_1, OUTPUT);                                                               // initialisation du port d'adressage du 4051
    pinMode(pin4051_2, OUTPUT); 
    pinMode(pin4051_3, OUTPUT);                                        
    Serial.begin(115200);                                                                     // initialisation du port serie                                                                       
-   Serial.println();                                                                         //message de courtoisie
+   Serial.println();                                                                         // message de courtoisie
    Serial.println();
    Serial.print("vous etes en communication avec le neud de capteur numero: ");
    Serial.print(numeroBoitier);
@@ -102,7 +115,7 @@ void setup() {
    Serial.println();
    Serial.println();
    dht.setup(dhtPin);        
-   leds[0] = CRGB::Blue;                                                                     //led de diag en bleu = boot 
+   leds[0] = CRGB::Blue;                                                                     // led de diag en bleu = boot 
    FastLED.show();
    WiFiManager wifiManager;
    byte mac[6]; WiFi.macAddress(mac);
@@ -141,10 +154,10 @@ void setup() {
    server.on("/submit", handleSubmit);
    server.begin();
    Serial.println("serveur HTTP OK");
-   leds[0] = CRGB::Green;                                                                  //led diag. verte = bien booté
+   leds[0] = CRGB::Green;                                                                  // led diag. verte = bien booté
    FastLED.show();
-   delay(800);
-   leds[0] = CRGB::Black;                                                                  //led diag. verte = bien booté
+   delay(1000);
+   leds[0] = CRGB::Black;                                                                  // led diag. black = en fonctionnement normal
    FastLED.show();
 }
 void loop() {
@@ -159,7 +172,7 @@ if (temperature != previousTemperature){
    Udp.endPacket();
    msg.empty();
    previousTemperature = temperature;  }                                                                                              
-duration1 = sonar_1.ping_median(sonar_iterations);                                        //cycle du sonar 1
+duration1 = sonar_1.ping_median(sonar_iterations);                                        // cycle du sonar 1
 distance1 = (duration1 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance1 != previousDistance1){
    sprintf(oscAddr, "%s%d/%d/sonar 1 ", base, plantoide, numeroBoitier);
@@ -170,7 +183,7 @@ if (distance1 != previousDistance1){
    Udp.endPacket();
    msg.empty();
    previousDistance1 = distance1;  }                                                                                                
-duration2 = sonar_2.ping_median(sonar_iterations);                                        //cycle du sonar 2
+duration2 = sonar_2.ping_median(sonar_iterations);                                        // cycle du sonar 2
 distance2 = (duration2 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
 if (distance2 != previousDistance2){
    sprintf(oscAddr, "%s%d/%d/sonar 2 ", base, plantoide, numeroBoitier);
@@ -196,10 +209,10 @@ digitalWrite(pin4051_2, HIGH);
 digitalWrite(pin4051_3, LOW);   
 delay(aReadDelay); 
 a1State = analogRead(0);  
-if(a1State < aMinimumTrueValue){
+if(a1State < a1MinimumTrueValue){
   a1State = 0;
                                } 
-if ((a1State - a1PreviousState) > aMinNoise || ((a1PreviousState - a1State) > aMinNoise))
+if ((a1State - a1PreviousState) > a1MinNoise || ((a1PreviousState - a1State) > a1MinNoise))
 {
 if (a1State != a1PreviousState)
 {
@@ -218,10 +231,10 @@ digitalWrite(pin4051_2, LOW);
 digitalWrite(pin4051_3, LOW);   
 delay(aReadDelay); //not sure if this delay is strictly necessary 
 a2State = analogRead(0);  // read the input pin 
-if(a2State < aMinimumTrueValue){
+if(a2State < a2MinimumTrueValue){
   a2State = 0;
                                } 
-if ((a2State - a2PreviousState) > aMinNoise || ((a2PreviousState - a2State) > aMinNoise))
+if ((a2State - a2PreviousState) > a2MinNoise || ((a2PreviousState - a2State) > a2MinNoise))
 {
 if (a2State != a2PreviousState)
 {
@@ -240,10 +253,10 @@ digitalWrite(pin4051_2, LOW);
 digitalWrite(pin4051_3, LOW);   
 delay(aReadDelay); 
 a3State = analogRead(0);  
-if(a3State < aMinimumTrueValue){
+if(a3State < a3MinimumTrueValue){
   a3State = 0;
                                } 
-if ((a3State - a3PreviousState) > aMinNoise || ((a3PreviousState - a3State) > aMinNoise))
+if ((a3State - a3PreviousState) > a3MinNoise || ((a3PreviousState - a3State) > a3MinNoise))
 {
 if (a3State != a3PreviousState)
 {
@@ -262,10 +275,10 @@ digitalWrite(pin4051_2, HIGH);
 digitalWrite(pin4051_3, LOW);   
 delay(aReadDelay); 
 a4State = analogRead(0);  
-if(a4State < aMinimumTrueValue){
+if(a4State < a4MinimumTrueValue){
   a4State = 0;
                                } 
-if ((a4State - a4PreviousState) > aMinNoise || ((a4PreviousState - a4State) > aMinNoise))
+if ((a4State - a4PreviousState) > a4MinNoise || ((a4PreviousState - a4State) > a4MinNoise))
 {
 if (a4State != a4PreviousState)
 {
@@ -279,15 +292,15 @@ if (a4State != a4PreviousState)
  a4PreviousState = a4State;
 }  
 }                                                                                                     
-digitalWrite(pin4051_1, LOW);                                                           // cycle analog in 5
+digitalWrite(pin4051_1, LOW);                                                            // cycle analog in 5
 digitalWrite(pin4051_2, LOW);      
 digitalWrite(pin4051_3, HIGH);   
 delay(aReadDelay); 
 a5State = analogRead(0);  
-if(a5State < aMinimumTrueValue){
+if(a5State < a5MinimumTrueValue){
   a5State = 0;
                                } 
-if ((a5State - a5PreviousState) > aMinNoise || ((a5PreviousState - a5State) > aMinNoise))
+if ((a5State - a5PreviousState) > a5MinNoise || ((a5PreviousState - a5State) > a5MinNoise))
 {
 if (a5State != a5PreviousState)
 {
@@ -306,10 +319,10 @@ digitalWrite(pin4051_2, HIGH);
 digitalWrite(pin4051_3, HIGH);   
 delay(aReadDelay); 
 a6State = analogRead(0); 
-if(a6State < aMinimumTrueValue){
+if(a6State < a6MinimumTrueValue){
   a6State = 0;
 } 
-if ((a6State - a6PreviousState) > aMinNoise || ((a6PreviousState - a6State) > aMinNoise))
+if ((a6State - a6PreviousState) > a6MinNoise || ((a6PreviousState - a6State) > a6MinNoise))
 {
 if (a6State != a6PreviousState)
 {
@@ -328,10 +341,10 @@ digitalWrite(pin4051_2, HIGH);
 digitalWrite(pin4051_3, HIGH);   
 delay(aReadDelay);
 a7State = analogRead(0);
-if(a7State < aMinimumTrueValue){
+if(a7State < a7MinimumTrueValue){
   a7State = 0;
                                }   
-if ((a7State - a7PreviousState) > aMinNoise || ((a7PreviousState - a7State) > aMinNoise))
+if ((a7State - a7PreviousState) > a7MinNoise || ((a7PreviousState - a7State) > a7MinNoise))
 {
 if (a7State != a7PreviousState)
 {
@@ -349,11 +362,11 @@ digitalWrite(pin4051_1, HIGH);                                                  
 digitalWrite(pin4051_2, LOW);      
 digitalWrite(pin4051_3, HIGH);   
 delay(aReadDelay); 
-a8State = analogRead(0);   
-if(a8State < aMinimumTrueValue){
+a6State = analogRead(0);   
+if(a8State < a8MinimumTrueValue){
   a8State = 0;
                                } 
-if ((a8State - a8PreviousState) > aMinNoise || ((a8PreviousState - a8State) > aMinNoise))
+if ((a8State - a8PreviousState) > a8MinNoise || ((a8PreviousState - a8State) > a8MinNoise))
 {
 if (a8State != a8PreviousState)
 {
@@ -368,19 +381,19 @@ if (a8State != a8PreviousState)
 } 
 }
 }
-void handleRoot() {                                                                        //formulaire html de configuration du sensor node
+void handleRoot() {                                                                        // formulaire html de configuration du sensor node
   String page = "";
-   page +=  "<html><body><H1>Configuration du noeud de capteurs plantoide : </h1> ";
-   page +=" <form action='/submit' method='get'>";
-   page +=" Adresse IP. du récépteur: ";
-   String pp = (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1 + (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4 + (String)"'></input>";
-   page += pp;
-   page += "<br> Plantoide #" + (String)" <input type='number' min=0 max=255 name='NPlantoid' value='" + plantoide + (String)"'></input>/<input type='number' min=0 max=255 name='NBoitier' value='" + numeroBoitier + (String)"'></input>";
-   page +=" <input type='submit' value='save values'></form>";
-   page +=" </body></html>";
-   server.send(200,"text/html", page);
+  page +=  "<html><body><H1>Configuration du noeud de capteurs plantoide : </h1> ";
+  page +=" <form action='/submit' method='get'>";
+  page +=" Adresse IP. du récépteur: ";
+  String pp = (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1 + (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4 + (String)"'></input>";
+  page += pp;
+  page += "<br> Plantoide #" + (String)" <input type='number' min=0 max=255 name='NPlantoid' value='" + plantoide + (String)"'></input>/<input type='number' min=0 max=255 name='NBoitier' value='" + numeroBoitier + (String)"'></input>";
+  page +=" <input type='submit' value='save values'></form>";
+  page +=" </body></html>";
+  server.send(200,"text/html", page);
 }
-void handleSubmit(){                                                                      //encaissement du formulaire dans l'eeprom
+void handleSubmit(){                                                                      // encaissement du formulaire dans l'eeprom
   Serial.println("reading arguments: " + (String)server.method() + "   ..." + server.arg(0) + server.arg(1) + server.arg(2) + server.arg(3));
   IP1 = atoi(server.arg(0).c_str());  EEPROM.write(10, byte(IP1));
   IP2 = atoi(server.arg(1).c_str());  EEPROM.write(11, byte(IP2));
