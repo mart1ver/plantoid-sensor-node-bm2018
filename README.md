@@ -24,20 +24,20 @@ I use [OSCDataMonitor](https://github.com/kasperkamperman/OSCDataMonitor) to tes
 chaque boitiers renvoie une douzaine de valeurs à ces adresses:
 ```
 
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog1/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog2/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog3/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog4/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog5/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog6/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog7/valeur(int,min 0 ,max 1024)
-plantoid/numero_sculpture(int)/numero_boitier(int)/analog8/valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 1 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 2 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 3 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 4 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 5 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 6 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 7 valeur(int,min 0 ,max 1024)
+plantoid/numero_sculpture(int)/numero_boitier(int)/analog 8 valeur(int,min 0 ,max 1024)
 
-plantoid/numero_sculpture(int)/numero_boitier(int)/sonar1/valeur(float,distance en centimetres)
-plantoid/numero_sculpture(int)/numero_boitier(int)/sonar2/valeur(float,distance en centimetres)
+plantoid/numero_sculpture(int)/numero_boitier(int)/sonar 1 valeur(float,distance en centimetres)
+plantoid/numero_sculpture(int)/numero_boitier(int)/sonar 2 valeur(float,distance en centimetres)
 
-plantoid/numero_sculpture(int)/numero_boitier(int)/temp/valeur(float,temperature au niveau du boitier)
-plantoid/numero_sculpture(int)/numero_boitier(int)/hum/valeur(float,humidité au niveau du boitier)
+plantoid/numero_sculpture(int)/numero_boitier(int)/temp valeur(float,temperature au niveau du boitier)
+plantoid/numero_sculpture(int)/numero_boitier(int)/hum valeur(float,humidité au niveau du boitier)
 
 ```
 
