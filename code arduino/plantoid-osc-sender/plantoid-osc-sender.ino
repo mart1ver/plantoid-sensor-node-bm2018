@@ -56,14 +56,14 @@ float a8State = 0;
 float a8PreviousState = 0;
 float duration1, duration2, distance1, distance2;
 float previousDistance1, previousDistance2;
-int sonar_iterations = 5;
+int sonar_iterations = 1;
 float humidity ; 
 float temperature ;
 float previousTemperature ; 
 float previousHumidity;
 int defaultAMinimumTrueValue = 17;
 int defaultAMinNoise = 60;
-int aReadDelay =  5;                                                                       // delais entre commutation du4051 et la lecture analogique
+int aReadDelay =  1;                                                                       // delais entre commutation du4051 et la lecture analogique
 int a1MinimumTrueValue = EEPROM.read(17)? EEPROM.read(17): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 1
 int a1MinNoise = EEPROM.read(18)? EEPROM.read(18): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 1
 int a2MinimumTrueValue = EEPROM.read(19)? EEPROM.read(19): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 2
@@ -415,7 +415,6 @@ void handleSubmit(){                                                            
   IP4 = atoi(server.arg(3).c_str());  EEPROM.write(13, byte(IP3));
   plantoide = atoi(server.arg(4).c_str()); EEPROM.write(14, byte(plantoide));
   numeroBoitier = atoi(server.arg(5).c_str()); EEPROM.write(15, byte(numeroBoitier));
-
 
 a1MinimumTrueValue = atoi(server.arg(6).c_str()); EEPROM.write(17, byte(a1MinimumTrueValue));
 a1MinNoise = atoi(server.arg(7).c_str()); EEPROM.write(18, byte(a1MinNoise));
