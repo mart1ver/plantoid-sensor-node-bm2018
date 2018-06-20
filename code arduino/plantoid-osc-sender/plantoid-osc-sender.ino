@@ -61,48 +61,50 @@ float humidity ;
 float temperature ;
 float previousTemperature ; 
 float previousHumidity;
-int aReadDelay = 5;                                                                          // delais entre commutation du4051 et la lecture analogique
-int a1MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 1
-int a1MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 1
-int a2MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 2
-int a2MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 2
-int a3MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 3
-int a3MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 3
-int a4MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 4
-int a4MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 4
-int a5MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 5
-int a5MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 5
-int a6MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 6
-int a6MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 6
-int a7MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 7
-int a7MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 7
-int a8MinimumTrueValue = 17;                                                                 // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 8
-int a8MinNoise = 60;                                                                         // bruit tolléré en mode analogique sur analog 8
-int initiation = EEPROM.read(9);                                                             // byte 9 de l'eeprom , censcé etre à 1 si le boitier à déja été configuré via l'interface html 
-int IP1 = EEPROM.read(10)? EEPROM.read(10): 192;                                             // lecture de l'ip dans l'eeprom , valeurs par défaut = 192.168.1.8,  bytes 10, 11, 12, 13 de l'eeprom
+int defaultAMinimumTrueValue = 17;
+int defaultAMinNoise = 60;
+int aReadDelay =  5;                                                                       // delais entre commutation du4051 et la lecture analogique
+int a1MinimumTrueValue = EEPROM.read(17)? EEPROM.read(17): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 1
+int a1MinNoise = EEPROM.read(18)? EEPROM.read(18): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 1
+int a2MinimumTrueValue = EEPROM.read(19)? EEPROM.read(19): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 2
+int a2MinNoise = EEPROM.read(20)? EEPROM.read(20): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 2
+int a3MinimumTrueValue = EEPROM.read(21)? EEPROM.read(21): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 3
+int a3MinNoise = EEPROM.read(22)? EEPROM.read(22): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 3
+int a4MinimumTrueValue = EEPROM.read(23)? EEPROM.read(23): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 4
+int a4MinNoise = EEPROM.read(24)? EEPROM.read(24): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 4
+int a5MinimumTrueValue = EEPROM.read(25)? EEPROM.read(25): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 5
+int a5MinNoise = EEPROM.read(26)? EEPROM.read(26): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 5
+int a6MinimumTrueValue = EEPROM.read(27)? EEPROM.read(27): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 6
+int a6MinNoise = EEPROM.read(28)? EEPROM.read(28): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 6
+int a7MinimumTrueValue = EEPROM.read(29)? EEPROM.read(29): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 7
+int a7MinNoise = EEPROM.read(30)? EEPROM.read(30): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 7
+int a8MinimumTrueValue = EEPROM.read(31)? EEPROM.read(31): defaultAMinimumTrueValue;       // filtre les valeurs de moins de x, pour les lectures analogiques sur analog 8
+int a8MinNoise = EEPROM.read(32)? EEPROM.read(32): defaultAMinNoise;                       // bruit tolléré en mode analogique sur analog 8
+int initiation = EEPROM.read(9);                                                           // byte 9 de l'eeprom , censcé etre à 1 si le boitier à déja été configuré via l'interface html 
+int IP1 = EEPROM.read(10)? EEPROM.read(10): 192;                                           // lecture de l'ip dans l'eeprom , valeurs par défaut = 192.168.1.8,  bytes 10, 11, 12, 13 de l'eeprom
 int IP2 = EEPROM.read(11)? EEPROM.read(11): 168;
 int IP3 = EEPROM.read(12)? EEPROM.read(12): 1;
 int IP4 = EEPROM.read(13)? EEPROM.read(13): 8;
 IPAddress outIp;
-int plantoide = EEPROM.read(14);                                                             // numero de la plantoide    byte 14 de l'eeprom
-int numeroBoitier = EEPROM.read(15);                                                         // numero du boitier         byte 15 de l'eeprom
+int plantoide = EEPROM.read(14);                                                           // numero de la plantoide    byte 14 de l'eeprom
+int numeroBoitier = EEPROM.read(15);                                                       // numero du boitier         byte 15 de l'eeprom
 void setup() {                                                                                         
    if(IP1) {  outIp = IPAddress(IP1,IP2,IP3,IP4);
    } else {   outIp = IPAddress(192,168,1,8);
    }   
-   plantoide = plantoide ? plantoide : 9;                                                    // si pas de numero de plantoide valeur par defaut = 9
-   numeroBoitier = numeroBoitier ? numeroBoitier : 9;                                        // si pas de numero de plantoide valeur par defaut = 9                                                                                                                              
-   FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);                                  // initialisation de la led de diag.                
+   plantoide = plantoide ? plantoide : 9;                                                  // si pas de numero de plantoide valeur par defaut = 9
+   numeroBoitier = numeroBoitier ? numeroBoitier : 9;                                      // si pas de numero de plantoide valeur par defaut = 9                                                                                                                              
+   FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);                                // initialisation de la led de diag.                
    leds[0] = CRGB::Black;                                                                     
    FastLED.show();
-   temperature = dht.getTemperature();                                                       // prise de temperature
-   delay(dht.getMinimumSamplingPeriod());                                                    // delais mini entre deux sollicitations du dht11
-   humidity = dht.getHumidity();                                                             // prise d'humidité                      
-   pinMode(pin4051_1, OUTPUT);                                                               // initialisation du port d'adressage du 4051
+   temperature = dht.getTemperature();                                                     // prise de temperature
+   delay(dht.getMinimumSamplingPeriod());                                                  // delais mini entre deux sollicitations du dht11
+   humidity = dht.getHumidity();                                                           // prise d'humidité                      
+   pinMode(pin4051_1, OUTPUT);                                                             // initialisation du port d'adressage du 4051
    pinMode(pin4051_2, OUTPUT); 
    pinMode(pin4051_3, OUTPUT);                                        
-   Serial.begin(115200);                                                                     // initialisation du port serie                                                                       
-   Serial.println();                                                                         // message de courtoisie
+   Serial.begin(115200);                                                                   // initialisation du port serie                                                                       
+   Serial.println();                                                                       // message de courtoisie
    Serial.println();
    Serial.print("vous etes en communication avec le neud de capteur numero: ");
    Serial.print(numeroBoitier);
@@ -115,7 +117,7 @@ void setup() {
    Serial.println();
    Serial.println();
    dht.setup(dhtPin);        
-   leds[0] = CRGB::Blue;                                                                     // led de diag en bleu = boot 
+   leds[0] = CRGB::Blue;                                                                   // led de diag en bleu = boot 
    FastLED.show();
    WiFiManager wifiManager;
    byte mac[6]; WiFi.macAddress(mac);
@@ -154,10 +156,10 @@ void setup() {
    server.on("/submit", handleSubmit);
    server.begin();
    Serial.println("serveur HTTP OK");
-   leds[0] = CRGB::Green;                                                                  // led diag. verte = bien booté
+   leds[0] = CRGB::Green;                                                                // led diag. verte = bien booté
    FastLED.show();
    delay(1000);
-   leds[0] = CRGB::Black;                                                                  // led diag. black = en fonctionnement normal
+   leds[0] = CRGB::Black;                                                                // led diag. black = en fonctionnement normal
    FastLED.show();
 }
 void loop() {
@@ -350,7 +352,7 @@ if (a7State != a7PreviousState)
 {
  sprintf(oscAddr, "%s%d/%d/analog 7 ", base, plantoide, numeroBoitier);
  OSCMessage msg(oscAddr);
- msg.add(a8State);
+ msg.add(a7State);
  Udp.beginPacket(outIp, outPort);
  msg.send(Udp);
  Udp.endPacket();
@@ -362,7 +364,7 @@ digitalWrite(pin4051_1, HIGH);                                                  
 digitalWrite(pin4051_2, LOW);      
 digitalWrite(pin4051_3, HIGH);   
 delay(aReadDelay); 
-a6State = analogRead(0);   
+a8State = analogRead(0);   
 if(a8State < a8MinimumTrueValue){
   a8State = 0;
                                } 
@@ -383,13 +385,25 @@ if (a8State != a8PreviousState)
 }
 void handleRoot() {                                                                        // formulaire html de configuration du sensor node
   String page = "";
-  page +=  "<html><body><H1>Configuration du noeud de capteurs plantoide : </h1> ";
+  page +=  "<html lang='fr' ><head><meta charset='UTF-8'></head><body>";
+  page +=  "<H1>Configuration du noeud de capteurs plantoide : </h1> ";
   page +=" <form action='/submit' method='get'>";
   page +=" Adresse IP. du récépteur: ";
   String pp = (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1 + (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4 + (String)"'></input>";
   page += pp;
   page += "<br> Plantoide #" + (String)" <input type='number' min=0 max=255 name='NPlantoid' value='" + plantoide + (String)"'></input>/<input type='number' min=0 max=255 name='NBoitier' value='" + numeroBoitier + (String)"'></input>";
-  page +=" <input type='submit' value='save values'></form>";
+   page +="<br><br> <h2>Configuration des analog in:</h2>";
+   page += "<br> a1MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a1MinimumTrueValue' value='" + a1MinimumTrueValue + (String)"'></input>a1MinNoise:<input type='number' min=0 max=255 name='a1MinNoise' value='" + a1MinNoise + (String)"'></input>";
+   page += "<br> a2MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a2MinimumTrueValue' value='" + a2MinimumTrueValue + (String)"'></input>a2MinNoise:<input type='number' min=0 max=255 name='a2MinNoise' value='" + a2MinNoise + (String)"'></input>";
+   page += "<br> a3MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a3MinimumTrueValue' value='" + a3MinimumTrueValue + (String)"'></input>a3MinNoise:<input type='number' min=0 max=255 name='a3MinNoise' value='" + a3MinNoise + (String)"'></input>";
+   page += "<br> a4MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a4MinimumTrueValue' value='" + a4MinimumTrueValue + (String)"'></input>a4MinNoise:<input type='number' min=0 max=255 name='a4MinNoise' value='" + a4MinNoise + (String)"'></input>";
+   page += "<br> a5MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a5MinimumTrueValue' value='" + a5MinimumTrueValue + (String)"'></input>a5MinNoise:<input type='number' min=0 max=255 name='a5MinNoise' value='" + a5MinNoise + (String)"'></input>";
+   page += "<br> a6MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a6MinimumTrueValue' value='" + a6MinimumTrueValue + (String)"'></input>a6MinNoise:<input type='number' min=0 max=255 name='a6MinNoise' value='" + a6MinNoise + (String)"'></input>";   
+   page += "<br> a7MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a7MinimumTrueValue' value='" + a7MinimumTrueValue + (String)"'></input>a7MinNoise:<input type='number' min=0 max=255 name='a7MinNoise' value='" + a7MinNoise + (String)"'></input>";
+   page += "<br> a8MinimumTrueValue:" + (String)" <input type='number' min=0 max=255 name='a8MinimumTrueValue' value='" + a8MinimumTrueValue + (String)"'></input>a8MinNoise:<input type='number' min=0 max=255 name='a8MinNoise' value='" + a8MinNoise + (String)"'></input>";   
+  page +=" <br><input type='submit' value='enregistrer'></form>";
+  page +="  <br><a href='lit'>Allumer la LED en rouge</a> ";
+  page +="  <br><a href='unlit'>Eteindre la LED</a> ";
   page +=" </body></html>";
   server.send(200,"text/html", page);
 }
@@ -401,6 +415,32 @@ void handleSubmit(){                                                            
   IP4 = atoi(server.arg(3).c_str());  EEPROM.write(13, byte(IP3));
   plantoide = atoi(server.arg(4).c_str()); EEPROM.write(14, byte(plantoide));
   numeroBoitier = atoi(server.arg(5).c_str()); EEPROM.write(15, byte(numeroBoitier));
+
+
+a1MinimumTrueValue = atoi(server.arg(6).c_str()); EEPROM.write(17, byte(a1MinimumTrueValue));
+a1MinNoise = atoi(server.arg(7).c_str()); EEPROM.write(18, byte(a1MinNoise));
+
+a2MinimumTrueValue = atoi(server.arg(8).c_str()); EEPROM.write(19, byte(a1MinimumTrueValue));
+a2MinNoise = atoi(server.arg(9).c_str()); EEPROM.write(20, byte(a1MinNoise));
+
+a3MinimumTrueValue = atoi(server.arg(10).c_str()); EEPROM.write(21, byte(a1MinimumTrueValue));
+a3MinNoise = atoi(server.arg(11).c_str()); EEPROM.write(22, byte(a1MinNoise));
+
+a4MinimumTrueValue = atoi(server.arg(12).c_str()); EEPROM.write(23, byte(a1MinimumTrueValue));
+a4MinNoise = atoi(server.arg(13).c_str()); EEPROM.write(24, byte(a1MinNoise));
+
+a5MinimumTrueValue = atoi(server.arg(14).c_str()); EEPROM.write(25, byte(a1MinimumTrueValue));
+a5MinNoise = atoi(server.arg(15).c_str()); EEPROM.write(26, byte(a1MinNoise));
+
+a6MinimumTrueValue = atoi(server.arg(16).c_str()); EEPROM.write(27, byte(a1MinimumTrueValue));
+a6MinNoise = atoi(server.arg(17).c_str()); EEPROM.write(28, byte(a1MinNoise));
+
+a7MinimumTrueValue = atoi(server.arg(18).c_str()); EEPROM.write(29, byte(a1MinimumTrueValue));
+a7MinNoise = atoi(server.arg(19).c_str()); EEPROM.write(30, byte(a1MinNoise));
+
+a8MinimumTrueValue = atoi(server.arg(20).c_str()); EEPROM.write(31, byte(a1MinimumTrueValue));
+a8MinNoise = atoi(server.arg(21).c_str()); EEPROM.write(32, byte(a1MinNoise));
+  
   EEPROM.write(9, byte(1));
   EEPROM.commit();
   outIp = IPAddress(IP1, IP2, IP3, IP4);
@@ -427,4 +467,4 @@ void handleNotFound(){
   message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
- }
+}
