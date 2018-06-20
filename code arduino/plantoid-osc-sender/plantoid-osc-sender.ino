@@ -88,7 +88,8 @@ int IP4 = EEPROM.read(13)? EEPROM.read(13): 8;
 IPAddress outIp;
 int plantoide = EEPROM.read(14);                                                           // numero de la plantoide    byte 14 de l'eeprom
 int numeroBoitier = EEPROM.read(15);                                                       // numero du boitier         byte 15 de l'eeprom
-void setup() {                                                                                         
+void setup() {    
+   EEPROM.begin(512);                                                                                     
    if(IP1) {  outIp = IPAddress(IP1,IP2,IP3,IP4);
    } else {   outIp = IPAddress(192,168,1,8);
    }   
