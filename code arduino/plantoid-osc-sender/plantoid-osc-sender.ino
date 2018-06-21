@@ -29,6 +29,11 @@
 #define MAX_DISTANCE  200                                                                 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define aref_voltage  5                                                                   // tension analog_ref = 5 volts
 
+#define defaultAMinimumTrueValue 17
+#define defaultAMinNoise 60
+#define aReadDelay 1                                                                      // delais entre commutation du4051 et la lecture analogique
+#define sonar_iterations 1
+
 typedef struct s_value {
 	float	value = 0;
 	float	previous_value = 0;
@@ -55,23 +60,17 @@ const unsigned int localPort = 8888;                                            
 
 t_value		adc[8];
 
-float duration1, duration2, distance1, distance2;
-float previousDistance1, previousDistance2;
-int sonar_iterations = 1;
-float humidity;
-float temperature ;
-float previousTemperature ;
-float previousHumidity;
-int defaultAMinimumTrueValue = 17;
-int defaultAMinNoise = 60;
-int aReadDelay =  1;                                                                       // delais entre commutation du4051 et la lecture analogique
+t_value humidity;
+t_value temperature;
+t_value distance1;
+t_value distance2;
 
 uint8_t adc_order[8] = {
 	0b110, // 6
 	0b000, // 0
 	0b100, // 4
 	0b010, // 2
-	0b001, // 1
+	0b001, // 1value
 	0b011, // 3
 	0b111, // 7
 	0b101  // 5
@@ -87,7 +86,6 @@ IPAddress outIp;
 
 uint8_t plantoide;
 uint8_t numeroBoitier;
-
 
 void init_eeprom() {
 	for (int i=0; i<16; i+=2) {
@@ -124,10 +122,10 @@ void setup() {
 	FastLED.show();
 
 	dht.setup(dhtPin);
-	temperature = dht.getTemperature();                                                     // prise de temperature
+	temperature.value = dht.getTemperature();                                                     // prise de temperature
 	delay(dht.getMinimumSamplingPeriod());                                                  // delais mini entre deux sollicitations du dht11
 
-	humidity = dht.getHumidity();                                                           // prise d'humidité
+	humidity.value = dht.getHumidity();                                                     // prise d'humidité
 
 	pinMode(pin4051_1, OUTPUT);                                                             // initialisation du port d'adressage du 4051
 	pinMode(pin4051_2, OUTPUT);
@@ -212,30 +210,30 @@ void send_osc(const char *sensor, float value) {
 void loop() {
 	server.handleClient();
 
-	temperature = dht.getTemperature();                                                        // cycle de temperature
-	if (temperature != previousTemperature) {
-		send_osc("temp", temperature);
-		previousTemperature = temperature;
+	temperature.value = dht.getTemperature();                                                        // cycle de temperature
+	if (temperature.value != temperature.previous_value) {
+		send_osc("temp", temperature.value);
+		temperature.previous_value = temperature.value;
 	}
 
-	duration1 = sonar_1.ping_median(sonar_iterations);                                        // cycle du sonar 1
-	distance1 = (duration1 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
-	if (distance1 != previousDistance1) {
-		send_osc("sonar 1", distance1);
-		previousDistance1 = distance1;
+	int duration = sonar_1.ping_median(sonar_iterations);                                        // cycle du sonar 1
+	distance1.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
+	if (distance1.value != distance1.previous_value) {
+		send_osc("sonar 1", distance1.value);
+		distance1.previous_value = distance1.value;
 	}
 
-	duration2 = sonar_2.ping_median(sonar_iterations);                                        // cycle du sonar 2
-	distance2 = (duration2 / 2) * ((331.4 + (0.606 * temperature) +(0.0124 * humidity) )/1000);
-	if (distance2 != previousDistance2){
-		send_osc("sonar 2", distance2);
-		previousDistance2 = distance2;
+	duration = sonar_2.ping_median(sonar_iterations);                                        // cycle du sonar 2
+	distance2.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
+	if (distance2.value != distance2.previous_value){
+		send_osc("sonar 2", distance2.value);
+		distance2.previous_value = distance2.value;
 	}
 
-	humidity = dht.getHumidity();                                                              // cycle d'humidité
-	if (humidity != previousHumidity){
-		send_osc("hum", humidity);
-		previousHumidity = humidity;
+	humidity.value = dht.getHumidity();                                                              // cycle d'humidité
+	if (humidity.value != humidity.previous_value){
+		send_osc("hum", humidity.value);
+		humidity.previous_value = humidity.value;
 	}
 
 	for (int i=0; i < 8; i++) {
@@ -313,7 +311,8 @@ void handleSubmit() {                                                           
 	page += "/";
 	page += numeroBoitier;
 	page +="</body></html>";
-server.send(200, "text/html", page);
+
+	server.send(200, "text/html", page);
 }
 
 void handleNotFound(){
@@ -325,8 +324,8 @@ void handleNotFound(){
 	message += "\nArguments: ";
 	message += server.args();
 	message += "\n";
-	for (uint8_t i=0; i<server.args(); i++){
+	for (uint8_t i=0; i<server.args(); i++)
 		message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-	}
+
 	server.send(404, "text/plain", message);
 }
