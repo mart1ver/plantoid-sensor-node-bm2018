@@ -51,7 +51,6 @@ DHTesp	dht;
 
 CRGB	leds[NUM_LEDS];                                                                   // Define the array of leds
 char*	base		= "plantoid/";                                                        // base de l'adresse OSC
-char	oscAddr[80] = "";                                                                 // tableau contenant l'adresse OSC complette pour les adresse osc
 char	addr[80]	= "";                                                                 // tableau contenant l'adresse OSC pour le serveur web
 WiFiUDP	Udp;
 
