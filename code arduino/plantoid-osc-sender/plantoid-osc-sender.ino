@@ -94,11 +94,20 @@ void init_eeprom() {
 		adc[i/2].minimum_true_value = minimum_true_value ? minimum_true_value : defaultAMinimumTrueValue;
 		adc[i/2].min_noise = min_noise ? min_noise : defaultAMinNoise;
 	}
+
 	int initiation = EEPROM.read(9);                                            // byte 9 de l'eeprom , censcé etre à 1 si le boitier à déja été configuré via l'interface html
-	IP1 = EEPROM.read(10)? EEPROM.read(10): 192;                                // lecture de l'ip dans l'eeprom , valeurs par défaut = 192.168.1.8,  bytes 10, 11, 12, 13 de l'eeprom
-	IP2 = EEPROM.read(11)? EEPROM.read(11): 168;
-	IP3 = EEPROM.read(12)? EEPROM.read(12): 1;
-	IP4 = EEPROM.read(13)? EEPROM.read(13): 8;
+	IP1 = EEPROM.read(10);                                                      // lecture de l'ip dans l'eeprom , valeurs par défaut = 192.168.1.8,  bytes 10, 11, 12, 13 de l'eeprom
+	IP2 = EEPROM.read(11);
+	IP3 = EEPROM.read(12);
+	IP4 = EEPROM.read(13);
+
+	if (IP1 == 0) {
+		IP1 = 192;
+		IP2 = 168;
+		IP3 = 1;
+		IP4 = 8;
+	}
+
 	plantoide = EEPROM.read(14);                                                // numero de la plantoide    byte 14 de l'eeprom
 	numeroBoitier = EEPROM.read(15);                                            // numero du boitier         byte 15 de l'eeprom
 }
@@ -143,7 +152,8 @@ void setup() {
 	FastLED.show();
 	WiFiManager wifiManager;
 
-	byte mac[6]; WiFi.macAddress(mac);
+	byte mac[6];
+	WiFi.macAddress(mac);
 
 	if(initiation)
 		sprintf(addr, "%s%d/%d/", base, plantoide, numeroBoitier);
