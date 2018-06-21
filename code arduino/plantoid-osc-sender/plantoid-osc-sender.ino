@@ -28,7 +28,7 @@
 #define LED_DATA_PIN  15                                                                  // data pin des leds de diag.                                            wemos D8
 #define MAX_DISTANCE  200                                                                 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define aref_voltage  5                                                                   // tension analog_ref = 5 volts
-
+#define LOOP_DELAY    100
 #define defaultAMinimumTrueValue 17
 #define defaultAMinNoise 60
 #define aReadDelay 1                                                                      // delais entre commutation du4051 et la lecture analogique
@@ -255,6 +255,7 @@ void loop() {
 			}
 		}
 	}
+	delay(LOOP_DELAY);
 }
 
 void handleRoot() {                                                                        // formulaire html de configuration du sensor node
@@ -263,7 +264,11 @@ void handleRoot() {                                                             
 	page +=  "<H1>Configuration du noeud de capteurs plantoide : </h1> ";
 	page +=" <form action='/submit' method='get'>";
 	page +=" Adresse IP. du récépteur: ";
-	String pp = (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1 + (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3 +  (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4 + (String)"'></input>";
+	String pp =   (String)" <input type='number' min=0 max=255 name='IP1' value='" + IP1
+				+ (String)"'></input> . <input type='number' min=0 max=255 name='IP2' value='" + IP2
+				+ (String)"'></input> . <input type='number' min=0 max=255 name='IP3' value='" + IP3
+				+ (String)"'></input> . <input type='number' min=0 max=255 name='IP4' value='" + IP4
+				+ (String)"'></input>";
 	page += pp;
 	page += "<br> Plantoide #" + (String)" <input type='number' min=0 max=255 name='NPlantoid' value='" + plantoide + (String)"'></input>/<input type='number' min=0 max=255 name='NBoitier' value='" + numeroBoitier + (String)"'></input>";
 	page +="<br><br> <h2>Configuration des analog in:</h2>";
