@@ -301,8 +301,8 @@ void handleSubmit() {                                                           
 	Serial.println("reading arguments: " + (String)server.method() + "   ..." + server.arg(0) + server.arg(1) + server.arg(2) + server.arg(3));
 	IP1 = atoi(server.arg(0).c_str());  EEPROM.write(10, byte(IP1));
 	IP2 = atoi(server.arg(1).c_str());  EEPROM.write(11, byte(IP2));
-	IP3 = atoi(server.arg(2).c_str());  EEPROM.write(12, byte(IP2));
-	IP4 = atoi(server.arg(3).c_str());  EEPROM.write(13, byte(IP3));
+	IP3 = atoi(server.arg(2).c_str());  EEPROM.write(12, byte(IP3));
+	IP4 = atoi(server.arg(3).c_str());  EEPROM.write(13, byte(IP4));
 	plantoide = atoi(server.arg(4).c_str()); EEPROM.write(14, byte(plantoide));
 	numeroBoitier = atoi(server.arg(5).c_str()); EEPROM.write(15, byte(numeroBoitier));
 
