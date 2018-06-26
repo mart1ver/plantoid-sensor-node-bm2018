@@ -207,7 +207,7 @@ void setup() {
 void send_osc(const char *sensor, float value) {
 	char oscAddr[80];
 
-	sprintf(oscAddr, "%s%d/%d/%s ", base, plantoide, numeroBoitier, sensor);
+	sprintf(oscAddr, "/%s%d/%d/%s", base, plantoide, numeroBoitier, sensor);
 	OSCMessage msg(oscAddr);
 	msg.add(value);
 	Udp.beginPacket(outIp, outPort);
@@ -228,14 +228,14 @@ void loop() {
 	int duration = sonar_1.ping_median(sonar_iterations);                                        // cycle du sonar 1
 	distance1.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
 	if (distance1.value != distance1.previous_value) {
-		send_osc("sonar 1", distance1.value);
+		send_osc("sonar1", distance1.value);
 		distance1.previous_value = distance1.value;
 	}
 
 	duration = sonar_2.ping_median(sonar_iterations);                                        // cycle du sonar 2
 	distance2.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
 	if (distance2.value != distance2.previous_value){
-		send_osc("sonar 2", distance2.value);
+		send_osc("sonar2", distance2.value);
 		distance2.previous_value = distance2.value;
 	}
 
@@ -259,7 +259,7 @@ void loop() {
 		if ((adc[i].value - adc[i].previous_value) > adc[i].min_noise || ((adc[i].previous_value - adc[i].value) > adc[i].min_noise)) {
 			if (adc[i].value != adc[i].previous_value) {
 				char sensor_name[80];
-				sprintf(sensor_name, "analog %d", i);
+				sprintf(sensor_name, "analog%d", i);
 				send_osc(sensor_name, adc[i].value);
 				adc[i].previous_value = adc[i].value;
 			}
