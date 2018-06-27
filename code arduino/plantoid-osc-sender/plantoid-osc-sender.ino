@@ -204,11 +204,12 @@ void setup() {
 	FastLED.show();
 }
 
-void send_osc(const char *sensor, float value) {
+void send_osc(const char *sensor, uint8_t index, float value) {
 	char oscAddr[80];
 
 	sprintf(oscAddr, "/%s%d/%d/%s", base, plantoide, numeroBoitier, sensor);
 	OSCMessage msg(oscAddr);
+	msg.add(index);
 	msg.add(value);
 	Udp.beginPacket(outIp, outPort);
 		msg.send(Udp);
@@ -221,27 +222,27 @@ void loop() {
 
 	temperature.value = dht.getTemperature();                                                        // cycle de temperature
 	if (temperature.value != temperature.previous_value) {
-		send_osc("temp", temperature.value);
+		send_osc("temp", 0, temperature.value);
 		temperature.previous_value = temperature.value;
 	}
 
 	int duration = sonar_1.ping_median(sonar_iterations);                                        // cycle du sonar 1
 	distance1.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
 	if (distance1.value != distance1.previous_value) {
-		send_osc("sonar1", distance1.value);
+		send_osc("sonar", 0, distance1.value);
 		distance1.previous_value = distance1.value;
 	}
 
 	duration = sonar_2.ping_median(sonar_iterations);                                        // cycle du sonar 2
 	distance2.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
 	if (distance2.value != distance2.previous_value){
-		send_osc("sonar2", distance2.value);
+		send_osc("sonar", 1, distance2.value);
 		distance2.previous_value = distance2.value;
 	}
 
 	humidity.value = dht.getHumidity();                                                              // cycle d'humidité
 	if (humidity.value != humidity.previous_value){
-		send_osc("hum", humidity.value);
+		send_osc("hum", 0, humidity.value);
 		humidity.previous_value = humidity.value;
 	}
 
@@ -260,7 +261,7 @@ void loop() {
 			if (adc[i].value != adc[i].previous_value) {
 				char sensor_name[80];
 				sprintf(sensor_name, "analog%d", i);
-				send_osc(sensor_name, adc[i].value);
+				send_osc(sensor_name, i, adc[i].value);
 				adc[i].previous_value = adc[i].value;
 			}
 		}
