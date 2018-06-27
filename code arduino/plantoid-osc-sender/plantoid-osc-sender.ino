@@ -50,7 +50,7 @@ NewPing sonar_2(TRIGGER_PIN_2, ECHO_PIN_2, MAX_DISTANCE);                       
 DHTesp	dht;
 
 CRGB	leds[NUM_LEDS];                                                                   // Define the array of leds
-char*	base		= "plantoid/";                                                        // base de l'adresse OSC
+char*	base		= "plantoid";                                                        // base de l'adresse OSC
 char	addr[80]	= "";                                                                 // tableau contenant l'adresse OSC pour le serveur web
 WiFiUDP	Udp;
 
@@ -156,7 +156,7 @@ void setup() {
 	WiFi.macAddress(mac);
 
 	if(initiation)
-		sprintf(addr, "%s%d/%d/", base, plantoide, numeroBoitier);
+		sprintf(addr, "%s/%d/%d/", base, plantoide, numeroBoitier);
 	else
 		sprintf(addr, "%s-%d:%d:%d:%d", base, mac[5],mac[4],mac[3],mac[2]);
 
@@ -207,7 +207,7 @@ void setup() {
 void send_osc(const char *sensor, uint8_t index, float value) {
 	char oscAddr[80];
 
-	sprintf(oscAddr, "/%s%d/%d/%s", base, plantoide, numeroBoitier, sensor);
+	sprintf(oscAddr, "/%s/%d/%d/%s", base, plantoide, numeroBoitier, sensor);
 	OSCMessage msg(oscAddr);
 	msg.add(index);
 	msg.add(value);
@@ -259,9 +259,7 @@ void loop() {
 
 		if ((adc[i].value - adc[i].previous_value) > adc[i].min_noise || ((adc[i].previous_value - adc[i].value) > adc[i].min_noise)) {
 			if (adc[i].value != adc[i].previous_value) {
-				char sensor_name[80];
-				sprintf(sensor_name, "analog%d", i);
-				send_osc(sensor_name, i, adc[i].value);
+				send_osc("analog", i, adc[i].value);
 				adc[i].previous_value = adc[i].value;
 			}
 		}
