@@ -204,7 +204,7 @@ void setup() {
 	FastLED.show();
 }
 
-void send_osc(const char *sensor, uint8_t index, float value) {
+void send_osc(const char *sensor, int index, float value) {
 	char oscAddr[80];
 
 	sprintf(oscAddr, "/%s/%d/%d/%s", base, plantoide, numeroBoitier, sensor);
