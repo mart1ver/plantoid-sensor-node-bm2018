@@ -28,7 +28,7 @@
 #define LED_DATA_PIN  15                                                                  // data pin des leds de diag.                                            wemos D8
 #define MAX_DISTANCE  200                                                                 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define aref_voltage  5                                                                   // tension analog_ref = 5 volts
-#define LOOP_DELAY    100
+#define LOOP_DELAY    300
 #define defaultAMinimumTrueValue 17
 #define defaultAMinNoise 60
 #define aReadDelay 1                                                                      // delais entre commutation du4051 et la lecture analogique
