@@ -41,6 +41,12 @@ typedef struct s_value {
 	uint8_t	min_noise;
 } t_value;
 
+typedef struct s_multiple_value {
+	float	values[sonar_iterations];
+	float	previous_value = 0;
+	uint8_t index = 0;
+} t_multiple_value;
+
 
 ESP8266WebServer server(80);                                                              // serveur web sur port 80
 
@@ -61,8 +67,8 @@ t_value		adc[8];
 
 t_value humidity;
 t_value temperature;
-t_value distance1;
-t_value distance2;
+t_multiple_value distance1;
+t_multiple_value distance2;
 
 uint8_t adc_order[8] = {
 	0b110, // 6
@@ -204,6 +210,37 @@ void setup() {
 	FastLED.show();
 }
 
+void bubbleSort(float A[], int len) {
+	unsigned long newn;
+	unsigned long n=len;
+	float temp=0.0;
+	do {
+		newn=1;
+		for(int p=1;p<len;p++){
+			if(A[p-1]>A[p]){
+				temp=A[p];           //swap places in array
+				A[p]=A[p-1];
+				A[p-1]=temp;
+				newn=p;
+			} //end if
+		} //end for
+		n=newn;
+	} while(n>1);
+}
+
+float median(float samples[], int m) { //calculate the median
+	//First bubble sort the values: https://en.wikipedia.org/wiki/Bubble_sort
+	float sorted[m];   //Define and initialize sorted array.
+	float temp=0.0;      //Temporary float for swapping elements
+	for(int i=0;i<m;i++)
+		sorted[i]=samples[i];
+	bubbleSort(sorted,m);
+	if (bitRead(m,0)==1)  //If the last bit of a number is 1, it's odd. This is equivalent to "TRUE". Also use if m%2!=0.
+		return sorted[m/2]; //If the number of data points is odd, return middle number.
+	else
+		return (sorted[(m/2)-1]+sorted[m/2])/2; //If the number of data points is even, return avg of the middle two numbers.
+}
+
 void send_osc(const char *sensor, int index, float value) {
 	char oscAddr[80];
 
@@ -218,6 +255,7 @@ void send_osc(const char *sensor, int index, float value) {
 }
 
 void loop() {
+	float m;
 	server.handleClient();
 
 	temperature.value = dht.getTemperature();                                                        // cycle de temperature
@@ -226,19 +264,23 @@ void loop() {
 		temperature.previous_value = temperature.value;
 	}
 
-	int duration = sonar_1.ping_median(sonar_iterations);                                        // cycle du sonar 1
-	distance1.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
-	if (distance1.value != distance1.previous_value) {
-		send_osc("sonar", 0, distance1.value);
-		distance1.previous_value = distance1.value;
+	int duration = sonar_1.ping();                                        // cycle du sonar 1
+	distance1.values[distance1.index++] = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
+	m = median(distance1.values, sonar_iterations);
+	if (m != distance1.previous_value) {
+		send_osc("sonar", 0, m);
+		distance1.previous_value = m;
 	}
+	distance1.index%=sonar_iterations;
 
-	duration = sonar_2.ping_median(sonar_iterations);                                        // cycle du sonar 2
-	distance2.value = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
-	if (distance2.value != distance2.previous_value){
-		send_osc("sonar", 1, distance2.value);
-		distance2.previous_value = distance2.value;
+	duration = sonar_2.ping();                                        // cycle du sonar 2
+	distance2.values[distance2.index++] = (duration / 2) * ((331.4 + (0.606 * temperature.value) +(0.0124 * humidity.value) )/1000);
+	m = median(distance2.values, sonar_iterations);
+	if (m != distance2.previous_value){
+		send_osc("sonar", 1, m);
+		distance2.previous_value = m;
 	}
+	distance2.index%=sonar_iterations;
 
 	humidity.value = dht.getHumidity();                                                              // cycle d'humidité
 	if (humidity.value != humidity.previous_value){
