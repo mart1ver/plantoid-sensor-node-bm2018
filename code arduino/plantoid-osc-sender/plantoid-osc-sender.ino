@@ -32,7 +32,7 @@
 #define defaultAMinimumTrueValue 17
 #define defaultAMinNoise 60
 #define aReadDelay 1                                                                      // delais entre commutation du4051 et la lecture analogique
-#define sonar_iterations 1
+#define sonar_iterations 5
 
 typedef struct s_value {
 	float	value = 0;
